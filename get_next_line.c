@@ -34,16 +34,31 @@ char *get_next_line(int file_desc)
         string = NULL;
     }
     t = read_and_cache(file_desc, &cache);
-	if (cache == NULL || cache->string == NULL)
+
+    if (t <= 0 && cache->string == NULL){
         return (NULL);
+    }
+
+
+    if (cache == NULL){
+        return (NULL);
+    }
+
+    if( cache->string == NULL) {
+        free_cache(&cache);
+        return (NULL);
+    }
 
     string = ft_lst_to_string(cache);
 
-    if ((!cache && !t) || string == NULL)
+    if( string == NULL)
     {
         cleanup_cache(&cache);
+        free_cache(&cache);
         return (NULL);
     }
+    if (!cache && !t) return (cleanup_cache(&cache), NULL);
+
     cleanup_cache(&cache);
 	return (string);
 }
@@ -98,8 +113,10 @@ void add_to_cache(t_string_list **cache, const char *buffer, int _read)
 		index++;
 	}
     new->string[index] = '\0';
-	if ((*cache)->string == NULL)
-		*cache = new;
+	if ((*cache)->string == NULL){
+        free_cache(cache);
+        *cache = new;
+    }
 	else
 		ft_lst_get_last(*cache)->next = new;
 }
@@ -111,23 +128,23 @@ void cleanup_cache(t_string_list **cache)
 	t_string_list *last_lst;
 	size_t j_index;
 
-	copy_lst = malloc(sizeof(t_string_list));
-	if (!cache || !copy_lst)
-		return;
-	index = 0;
-	last_lst = ft_lst_get_last(*cache);
+    index = 0;
+
+    if (!cache)
+        return ;
+    copy_lst = malloc(sizeof(t_string_list));
+    if (!copy_lst)
+        return ;
+    last_lst = ft_lst_get_last(*cache);
 	copy_lst->next = NULL;
 
 	while (last_lst->string[index] && last_lst->string[index] != '\n')
 		index++;
 	if (last_lst->string[index] && last_lst->string[index] == '\n')
 		index++;
-
 	copy_lst->string = malloc(sizeof(char) * ((ft_strlen(last_lst->string) - index) + 1));
 	if (!copy_lst->string)
-        return ;
-
-
+        return (free_cache(&copy_lst));
 	j_index = 0;
 	while (last_lst->string[index])
 		copy_lst->string[j_index++] = last_lst->string[index++];

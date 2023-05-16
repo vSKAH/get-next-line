@@ -100,10 +100,8 @@ char	*ft_lst_to_string(t_string_list *lst)
 		}
 		tmp = tmp->next;
 	}
-    if (string[0] == '\0') {
-        free(string);
-        return (NULL);
-    }
+    if (string[0] == '\0')
+        return ( free(string), NULL);
     return (string);
 }
 char	*ft_alloc_from_lst(t_string_list *lst)
