@@ -45,7 +45,7 @@ t_string_list *ft_lst_get_last(t_string_list *lst)
 	t_string_list *latest;
 
 	latest = lst;
-	while (latest != NULL && latest->next != NULL)
+	while (latest->next != NULL)
 		latest = latest->next;
 	return (latest);
 }
@@ -100,13 +100,17 @@ char	*ft_lst_to_string(t_string_list *lst)
 		}
 		tmp = tmp->next;
 	}
-	return (string);
+    if (string[0] == '\0') {
+        free(string);
+        return (NULL);
+    }
+    return (string);
 }
 char	*ft_alloc_from_lst(t_string_list *lst)
 {
 	size_t			index;
 	size_t			j_index;
-	char			*string;
+    char			*string;
 
 	index = 0;
 	j_index = 0;
@@ -118,7 +122,7 @@ char	*ft_alloc_from_lst(t_string_list *lst)
         }
 	}
 	string = malloc(sizeof(char) * (index + 1));
-	if (!string)
+    if (!string)
 		return (NULL);
 	while (j_index <= index)
 	{

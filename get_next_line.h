@@ -16,7 +16,7 @@
 # include "unistd.h"
 
 # ifndef BUFFER_SIZE
-#  define BUFFER_SIZE 1
+#  define BUFFER_SIZE 42
 # endif
 
 typedef struct s_string_list
@@ -32,7 +32,7 @@ char			*get_next_line(int file_descriptor);
 int 			read_and_cache(int file_descriptor, t_string_list **cache);
 void			add_to_cache(t_string_list **cache, const char *buffer, int _read);
 void			cleanup_cache(t_string_list **cache);
-void			free_cache(t_string_list *cache);
+void			free_cache(t_string_list **cache);
 
 
 size_t			ft_strlen(const char string[]);
