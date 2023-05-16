@@ -25,7 +25,9 @@ size_t ft_strlen(const char *string)
 	int index;
 
 	index = 0;
-	while (string[index])
+    if (string == NULL)
+        return (0);
+    while (string[index])
 		index++;
 	return (index);
 }
@@ -43,7 +45,7 @@ t_string_list *ft_lst_get_last(t_string_list *lst)
 	t_string_list *latest;
 
 	latest = lst;
-	while (latest && latest->next != NULL)
+	while (latest != NULL && latest->next != NULL)
 		latest = latest->next;
 	return (latest);
 }
@@ -63,7 +65,8 @@ int	ft_lst_contains_linebreak(t_string_list *lst)
 
 	latest = ft_lst_get_last(lst);
 	index = 0;
-	while (latest != NULL && latest->string[index])
+
+	while (latest != NULL && latest->string != NULL && latest->string[index])
 	{
 		if (latest->string[index] == '\n')
 			return (1);
@@ -109,8 +112,10 @@ char	*ft_alloc_from_lst(t_string_list *lst)
 	j_index = 0;
 	while (lst)
 	{
-		index += ft_strlen(lst->string);
-		lst = lst->next;
+        if(lst->string != NULL) {
+            index += ft_strlen(lst->string);
+            lst = lst->next;
+        }
 	}
 	string = malloc(sizeof(char) * (index + 1));
 	if (!string)

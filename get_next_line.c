@@ -6,7 +6,7 @@
 /*   By: jbadaire <jbadaire@student.42lyon.fr>      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/05/04 12:38:42 by jbadaire          #+#    #+#             */
-/*   Updated: 2023/05/12 15:23:37 by jbadaire         ###   ########.fr       */
+/*   Updated: 2023/05/16 14:35:10 by jbadaire         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,15 +15,24 @@
 
 char *get_next_line(int file_desc)
 {
-	static t_string_list *cache;
+    static int               first;
+	static t_string_list    *cache;
 	char *string;
-	void	*t;
+	int	t;
 
-	//Si y'a un problème avec les paramètres, on renvoie NULL
 	if (BUFFER_SIZE <= 0 || file_desc < 0)
 		return (NULL);
+
+    if(first != 1) {
+        first = 1;
+        cache = malloc(sizeof(t_string_list));
+        if (!cache)
+            return (NULL);
+        cache->string = NULL;
+        cache->next = NULL;
+    }
 	t = read_and_cache(file_desc, &cache);
-	if	(t == NULL)
+	if	(t == 0)
 		return (NULL);
 	if (cache == NULL)
 		return (NULL);
@@ -34,34 +43,48 @@ char *get_next_line(int file_desc)
 	return (string);
 }
 
-void *read_and_cache(int file_desc, t_string_list **cache)
+int read_and_cache(int file_desc, t_string_list **cache)
 {
-	char		buffer[BUFFER_SIZE];
-	size_t		 _read;
-	int	is_passed;
+	char		*buffer;
+	int         _read;
+	int     	is_passed;
 
-	is_passed = 0;
-	while (!ft_lst_contains_linebreak(*cache) || !is_passed)
+    is_passed = 0;
+    _read = 0;
+    buffer = malloc((sizeof (char) * BUFFER_SIZE));
+    if(!buffer || *cache == NULL)
+        return (0);
+    while (!ft_lst_contains_linebreak(*cache) || !is_passed)
 	{
 		_read = read(file_desc, buffer, BUFFER_SIZE);
 		add_to_cache(cache, buffer, _read);
 		is_passed = 1;
-		if(_read <= 0)
-			return ((void *) NULL);
+		if(_read <= 0) {
+            free(buffer);
+            return (0);
+        }
 	}
-	return ((void *)(_read));
+    free(buffer);
+    return (_read);
 }
 
-void add_to_cache(t_string_list **cache, const char *buffer, size_t _read)
+void add_to_cache(t_string_list **cache, const char *buffer, int _read)
 {
-	size_t index;
+	int index;
 	t_string_list *new;
 
 	index = 0;
 	new = malloc(sizeof(t_string_list));
 	if (!new)
 		return ;
-	new->string = malloc((sizeof(char) * _read));
+    new->next = NULL;
+    new->string = NULL;
+    if(_read <= 0)
+    {
+        free(new);
+        return ;
+    }
+	new->string = malloc(((sizeof(char) * _read) + 1));
 	if (!new->string)
 		return ;
 	while (index < _read && buffer[index])
@@ -69,7 +92,8 @@ void add_to_cache(t_string_list **cache, const char *buffer, size_t _read)
 		new->string[index] = buffer[index];
 		index++;
 	}
-	if (*cache == NULL)
+    new->string[index] = '\0';
+	if ((*cache)->string == NULL)
 		*cache = new;
 	else
 		ft_lst_get_last(*cache)->next = new;
