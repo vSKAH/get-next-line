@@ -34,16 +34,7 @@ char    *ft_growth_line(char *returned_line, char *buffer, int chars_readed);
 enum t_boolean   ft_has_new_line(char *buffer, char **returned_line);
 
 char			*get_next_line(int file_descriptor);
-int 			read_and_cache(int file_descriptor, t_string_list **cache);
-void			add_to_cache(t_string_list **cache, const char *buffer, int _read);
-void			cleanup_cache(t_string_list **cache);
-void			free_cache(t_string_list **cache);
 
 
-size_t			ft_strlen(const char string[]);
-t_string_list	*ft_lst_get_last(t_string_list *lst);
-int				ft_lst_contains_linebreak(t_string_list *lst);
-char			*ft_lst_to_string(t_string_list *lst);
-char			*ft_alloc_from_lst(t_string_list *lst);
 # define GET_NEXT_LINE_H
 #endif
