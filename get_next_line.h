@@ -30,7 +30,7 @@ void    ft_mem_switch(char *buffer, int len);
 void ft_fill_of_zero(char *buffer, int index);
 
 char    *ft_str_join(char *returned_line, char *buffer, int chars_readed, int len_line);
-char    *ft_increase_line(char *returned_line, char *buffer, int chars_readed);
+char    *ft_growth_line(char *returned_line, char *buffer, int chars_readed);
 enum t_boolean   ft_has_new_line(char *buffer, char **returned_line);
 
 char			*get_next_line(int file_descriptor);

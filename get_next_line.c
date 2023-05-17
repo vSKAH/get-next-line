@@ -27,6 +27,6 @@ char    *get_next_line(int file_descriptor)
             return (returned_line);
         chars_readed = read(file_descriptor, buffer, BUFFER_SIZE);
     }
-    returned_line = ft_increase_line(returned_line, buffer, chars_readed);
+    returned_line = ft_growth_line(returned_line, buffer, chars_readed);
     return (returned_line);
 }
