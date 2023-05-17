@@ -12,7 +12,6 @@
 
 #include "get_next_line.h"
 
-
 /**
  * The function reads a file descriptor,
  * and returns the next line of text from the file.
@@ -27,19 +26,20 @@
  * a string that contains the next line from the file
  * associated with the given file descriptor.
  */
-char	*get_next_line(int file_descriptor)
+char    *get_next_line(int file_descriptor)
 {
-	static char	buffer[BUFFER_SIZE + 1];
-	int			chars_readed;
-	char		*returned_line;
+    static char    buffer[BUFFER_SIZE + 1];
+    int            chars_readed;
+    char        *returned_line;
 
     chars_readed = BUFFER_SIZE;
-	while (chars_readed > 0)
-	{
-		if (ft_has_new_line(buffer, &returned_line))
-			return (returned_line);
-		chars_readed = read(file_descriptor, buffer, BUFFER_SIZE);
-	}
-	returned_line = ft_growth_line(returned_line, buffer, chars_readed);
-	return (returned_line);
+    returned_line = NULL;
+    while (chars_readed > 0)
+    {
+        if (ft_has_new_line(buffer, &returned_line))
+            return (returned_line);
+        chars_readed = read(file_descriptor, buffer, BUFFER_SIZE);
+    }
+    returned_line = ft_growth_line(returned_line, buffer, chars_readed);
+    return (returned_line);
 }
