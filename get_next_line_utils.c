@@ -11,121 +11,79 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include "stdio.h"
 
-/**
- * The function calculates the length of a given string.
- *
- * @param string A pointer to a constant character array (string) that we want to find the length of.
- *
- * @return The function `ft_strlen` returns the length of the input string as a `size_t` data type.
- */
-size_t ft_strlen(const char *string)
+void    ft_mem_switch(char *buffer, int len)
 {
-	int index;
+    int    index;
 
-	index = 0;
-    if (string == NULL)
-        return (0);
-    while (string[index])
-		index++;
-	return (index);
+    index = 0;
+    while (index + len < BUFFER_SIZE)
+    {
+        buffer[index] = buffer[len + index];
+        index++;
+    }
+    ft_fill_of_zero(buffer, index);
+}
+
+void ft_fill_of_zero(char *buffer, int index) {
+    while (buffer[index] && index < BUFFER_SIZE)
+        buffer[index++] = '\0';
 }
 
 
-/**
- * The function returns the last element of a linked list.
- *
- * @param lst lst is a pointer to the first node of a linked list of type t_string_list.
- *
- * @return The function `ft_lst_get_last` returns a pointer to the last node of a linked list of type `t_string_list`.
- */
-t_string_list *ft_lst_get_last(t_string_list *lst)
+char    *ft_str_join(char *returned_line, char *buffer, int nb_of_char, int len_line)
 {
-	t_string_list *latest;
+    int        index;
+    char    *result;
 
-	latest = lst;
-	while (latest->next != NULL)
-		latest = latest->next;
-	return (latest);
+    if (len_line + nb_of_char <= 0)
+        return (NULL);
+    result = malloc((len_line + nb_of_char + 1) * sizeof(char));
+    if (!result)
+        return (NULL);
+    index = 0;
+    while (returned_line && returned_line[index])
+    {
+        result[index] = returned_line[index];
+        index++;
+    }
+    while (index < (len_line + nb_of_char))
+    {
+        result[index] = *buffer;
+        index++;
+        buffer++;
+    }
+    return (result[index] = '\0', result);
 }
 
-/**
- * The function checks if the last string in a linked list contains a line break character.
- *
- * @param lst lst is a pointer to a linked list of strings (t_string_list).
- *
- * @return a boolean value (true or false) depending on whether the last string in the given linked list contains a line
- * break character ('\n') or not.
- */
-int	ft_lst_contains_linebreak(t_string_list *lst)
+char    *ft_increase_line(char *returned_line, char *buffer, int chars_readed)
 {
-	t_string_list	*latest;
-	size_t			index;
+    char    *result;
+    int        index;
 
-	latest = ft_lst_get_last(lst);
-	index = 0;
-
-	while (latest != NULL && latest->string != NULL && latest->string[index])
-	{
-		if (latest->string[index] == '\n')
-			return (1);
-		index++;
-	}
-	return (0);
+    index = 0;
+    if (chars_readed == -1)
+        return (free(returned_line), NULL);
+    if (returned_line)
+        while (returned_line[index])
+            index++;
+    result = ft_str_join(returned_line, buffer, chars_readed, index);
+    return (free(returned_line), result);
 }
-char	*ft_lst_to_string(t_string_list *lst)
-{
-	char			*string;
-	t_string_list	*tmp;
-	size_t			index;
-	size_t			j_index;
 
-	tmp = lst;
-	string = ft_alloc_from_lst(lst);
-	index = 0;
-	if (!string)
-		return (NULL);
-	while (tmp)
-	{
-		j_index = 0;
-		while (tmp->string[j_index])
-		{
-			if (tmp->string[j_index] == '\n')
-			{
-				string[index++] = tmp->string[j_index];
-				break ;
-			}
-			string[index++] = tmp->string[j_index++];
-		}
-		tmp = tmp->next;
-	}
-    if (string[0] == '\0')
-        return ( free(string), NULL);
-    return (string);
-}
-char	*ft_alloc_from_lst(t_string_list *lst)
+enum t_boolean   ft_has_new_line(char *buffer, char **returned_line)
 {
-	size_t			index;
-	size_t			j_index;
-    char			*string;
+    int        index;
+    enum t_boolean   is_new_line;
 
-	index = 0;
-	j_index = 0;
-	while (lst)
-	{
-        if(lst->string != NULL) {
-            index += ft_strlen(lst->string);
-            lst = lst->next;
-        }
-	}
-	string = malloc(sizeof(char) * (index + 1));
-    if (!string)
-		return (NULL);
-	while (j_index <= index)
-	{
-		string[j_index] = '\0';
-		j_index++;
-	}
-	return (string);
+    index = 0;
+    is_new_line = _false;
+    while (buffer[index] && buffer[index] != '\n')
+        index++;
+    if (buffer[index] == '\n')
+        is_new_line = _true;
+    *returned_line = ft_increase_line(*returned_line, buffer, ++index);
+    if (returned_line == NULL)
+        return (_false);
+    return (ft_mem_switch(buffer, index), is_new_line);
 }

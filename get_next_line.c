@@ -11,151 +11,22 @@
 /* ************************************************************************** */
 
 #include "get_next_line.h"
-#include "stdio.h"
 
-char *get_next_line(int file_desc)
+
+char    *get_next_line(int file_descriptor)
 {
-    static int               first;
-	static t_string_list     *cache;
-    char *string;
-	int	t;
+    static char    buffer[BUFFER_SIZE + 1];
+    int            chars_readed;
+    char        *returned_line;
 
-
-	if (BUFFER_SIZE <= 0 || file_desc < 0)
-		return (NULL);
-
-    if(first != 1) {
-        first = 1;
-        cache = malloc(sizeof(t_string_list));
-        if (!cache)
-            return (NULL);
-        cache->string = NULL;
-        cache->next = NULL;
-        string = NULL;
-    }
-    t = read_and_cache(file_desc, &cache);
-
-    if (t <= 0 && cache->string == NULL){
-        return (NULL);
-    }
-
-
-    if (cache == NULL){
-        return (NULL);
-    }
-
-    if( cache->string == NULL) {
-        free_cache(&cache);
-        return (NULL);
-    }
-
-    string = ft_lst_to_string(cache);
-
-    if( string == NULL)
+    chars_readed = BUFFER_SIZE;
+    returned_line = NULL;
+    while (chars_readed > 0)
     {
-        cleanup_cache(&cache);
-        free_cache(&cache);
-        return (NULL);
+        if (ft_has_new_line(buffer, &returned_line))
+            return (returned_line);
+        chars_readed = read(file_descriptor, buffer, BUFFER_SIZE);
     }
-    if (!cache && !t) return (cleanup_cache(&cache), NULL);
-
-    cleanup_cache(&cache);
-	return (string);
-}
-
-int read_and_cache(int file_desc, t_string_list **cache)
-{
-	char		*buffer;
-	int         _read;
-	int     	is_passed;
-
-    is_passed = 0;
-    _read = 0;
-    buffer = malloc((sizeof (char) * BUFFER_SIZE));
-    if(!buffer || *cache == NULL)
-        return (0);
-    while (!ft_lst_contains_linebreak(*cache) || !is_passed)
-	{
-		_read = read(file_desc, buffer, BUFFER_SIZE);
-		add_to_cache(cache, buffer, _read);
-		is_passed = 1;
-		if(_read <= 0) {
-            free(buffer);
-            return (0);
-        }
-	}
-    free(buffer);
-    return (_read);
-}
-
-void add_to_cache(t_string_list **cache, const char *buffer, int _read)
-{
-	int index;
-	t_string_list *new;
-
-	index = 0;
-	new = malloc(sizeof(t_string_list));
-	if (!new)
-		return ;
-    new->next = NULL;
-    new->string = NULL;
-    if(_read <= 0)
-    {
-        free(new);
-        return ;
-    }
-	new->string = malloc(((sizeof(char) * _read) + 1));
-	if (!new->string)
-		return ;
-	while (index < _read && buffer[index])
-	{
-		new->string[index] = buffer[index];
-		index++;
-	}
-    new->string[index] = '\0';
-	if ((*cache)->string == NULL){
-        free_cache(cache);
-        *cache = new;
-    }
-	else
-		ft_lst_get_last(*cache)->next = new;
-}
-
-void cleanup_cache(t_string_list **cache)
-{
-	size_t index;
-	t_string_list *copy_lst;
-	t_string_list *last_lst;
-	size_t j_index;
-
-    index = 0;
-
-    if (!cache)
-        return ;
-    copy_lst = malloc(sizeof(t_string_list));
-    if (!copy_lst)
-        return ;
-    last_lst = ft_lst_get_last(*cache);
-	copy_lst->next = NULL;
-
-	while (last_lst->string[index] && last_lst->string[index] != '\n')
-		index++;
-	if (last_lst->string[index] && last_lst->string[index] == '\n')
-		index++;
-	copy_lst->string = malloc(sizeof(char) * ((ft_strlen(last_lst->string) - index) + 1));
-	if (!copy_lst->string)
-        return (free_cache(&copy_lst));
-	j_index = 0;
-	while (last_lst->string[index])
-		copy_lst->string[j_index++] = last_lst->string[index++];
-	copy_lst->string[j_index] = '\0';
-	free_cache(cache);
-	*cache = copy_lst;
-}
-
-void free_cache(t_string_list **cache){
-    if ((*cache)->next != NULL)
-        free_cache(&((*cache)->next));
-    free((*cache)->string);
-    free(*cache);
+    returned_line = ft_increase_line(returned_line, buffer, chars_readed);
+    return (returned_line);
 }
